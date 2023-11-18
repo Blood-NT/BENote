@@ -16,7 +16,7 @@ export const saveModel = sequelize.define<Save>(
             primaryKey: true,
         },
         noteid: {
-            type: DataTypes.STRING,
+            type: DataTypes.INTEGER,
             allowNull: false,
             primaryKey: true,
         },

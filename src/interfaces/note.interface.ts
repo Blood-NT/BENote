@@ -6,7 +6,7 @@ extends Model <InferAttributes<Note>,InferCreationAttributes<Note>>{
     uid: string;
     title: string;
     status: boolean;
-    share: boolean;
+    share: number;// 1=> khóa. 2=> chỉ xem 3=> có thể chỉnh sửa
     importance: boolean;
     color: string;
     created: Date;

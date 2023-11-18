@@ -22,6 +22,9 @@ module.exports = {
             token: {
                 type: DataTypes.STRING,
             },
+            tokennn: {
+                type: DataTypes.STRING,
+            },
 
         });
         await queryInterface.createTable('notes', {

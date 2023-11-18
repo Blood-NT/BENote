@@ -6,15 +6,22 @@ export const contentModel = sequelize.define<Contents>(
     "contents",
     {
         cid: {
-            type: DataTypes.NUMBER, primaryKey: true  },
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true
+        },
         uid: {
-            type: DataTypes.STRING  },
+            type: DataTypes.STRING
+        },
         nid: {
-            type: DataTypes.NUMBER  },
+            type: DataTypes.INTEGER
+        },
         content: {
-            type: DataTypes.STRING  },
+            type: DataTypes.STRING
+        },
         updateat: {
-            type: DataTypes.DATE  },
+            type: DataTypes.DATE
+        },
 
     },
     {

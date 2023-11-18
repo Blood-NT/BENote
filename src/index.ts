@@ -4,7 +4,7 @@ import router from './routes';
 import cors from "cors";
 
 const app = express();
-const port = 8080;
+const port = 8083;
 app.use(cors({ origin: "*", methods: "*", optionsSuccessStatus: 200 }));
 
 app.use(express.json());

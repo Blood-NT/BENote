@@ -37,7 +37,8 @@ const sendVerificationEmail = async (email: string, uniqueString: string) => {
 };
 const sendVerifiForgotPassword = async (
   email: string,
-  uniqueString: string
+  uniqueString: string,
+  newPassword: string
 ) => {
   const currentUrl = process.env.HOST_IP;
   const mailOption = {
@@ -46,7 +47,8 @@ const sendVerifiForgotPassword = async (
     subject: "Xác nhận thay đổi mật khẩu",
     html: `<div style="display: flex; margin: 0 auto; justify-content: center; align-items: center; height: 100vh; font-family: Arial, Helvetica, sans-serif; box-sizing: border-box;">
       <div style="width: 600px; padding: 20px 8%; text-align: center; background-color: #fff; border-radius: 12px; color: #333;">
-          <p style="font-size: 18px; color: #888;">Xác nhận thay đổi mật khẩu</p>
+      <p style="font-size: 18px; color: #888;">Xác nhận thay đổi mật khẩu</p>
+      <p style="font-size: 18px; color: #888;">mật khẩu mới của bạn là "${newPassword}"</p>
           <img src="https://i.pinimg.com/originals/ff/d2/c2/ffd2c238fb713dbf7872626b493f2a81.jpg" alt="email" width="300px">
           <h1>Bạn vừa yêu cầu thay đổi mật khẩu</h1>
           <p><p>Nhấn vào liên kết sau để hoàn tất quá trình.</p><p>Liên kết <b>có hiệu lực trong 10 phút</b>.</p><p>Nhấn vào<a href=${
@@ -58,4 +60,29 @@ const sendVerifiForgotPassword = async (
   await transporter.sendMail(mailOption);
 };
 
-export { sendVerificationEmail, sendVerifiForgotPassword };
+
+const sendVerifiNewPassword = async (
+  email: string,
+  uniqueString: string
+) => {
+  const currentUrl = process.env.HOST_IP;
+  const mailOption = {
+    from: process.env.EMAIL_VALIDATE_ACCOUNT ,
+    to: email,
+    subject: "Xác nhận thay đổi mật khẩu",
+    html: `<div style="display: flex; margin: 0 auto; justify-content: center; align-items: center; height: 100vh; font-family: Arial, Helvetica, sans-serif; box-sizing: border-box;">
+      <div style="width: 600px; padding: 20px 8%; text-align: center; background-color: #fff; border-radius: 12px; color: #333;">
+      <p style="font-size: 18px; color: #888;">Xác nhận thay đổi mật khẩu</p>
+      <p style="font-size: 18px; color: #888;">mật khẩu mới của bạn là ......</p>
+          <img src="https://i.pinimg.com/originals/ff/d2/c2/ffd2c238fb713dbf7872626b493f2a81.jpg" alt="email" width="300px">
+          <h1>Bạn vừa yêu cầu thay đổi mật khẩu</h1>
+          <p><p>Nhấn vào liên kết sau để hoàn tất quá trình.</p><p>Liên kết <b>có hiệu lực trong 10 phút</b>.</p><p>Nhấn vào<a href=${
+            currentUrl + "/user/verify-password/" + email + "/" + uniqueString
+          }> đây</a> để tiếp tục</p>
+      </div>
+  </div>`,
+  };
+  await transporter.sendMail(mailOption);
+};
+
+export { sendVerificationEmail, sendVerifiForgotPassword, sendVerifiNewPassword };

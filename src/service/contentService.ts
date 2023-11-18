@@ -25,7 +25,7 @@ const createContentService = async(uid:string,nid:number, data:string)=>{
 const getContentService = async(nid:string)=>{
     // tìm content có id lớn nhất
     try{
-        const content = await contentModel.findOne({
+        const content:Contents|null = await contentModel.findOne({
             where:{
                 nid:nid
             },

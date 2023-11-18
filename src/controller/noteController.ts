@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import { createNoteService, deleteNoteService, getInfoNoteService, getNoteByUidService, setColorNote, setImportanceNote, updateShareNoteService, updateTitleNoteService } from "../service/noteService";
 
-import { createContentService } from "../service/contentService";
+import { createContentService, getContentService } from "../service/contentService";
+import { Contents } from "../interfaces/content.interface";
 
 const createNote = async (req: Request, res: Response) => {
     console.log("check",req.body);
@@ -49,7 +50,7 @@ const updateTitleNote = async (req: Request, res: Response) => {
 const openShareNote = async (req: Request, res: Response) => {
     try {
         const { nid } = req.body;
-        const log = await updateShareNoteService(nid, true);
+        const log = await updateShareNoteService(nid, 2);
         if (log === 200) {
             return res.status(200).json({ message: "Cập nhật thành công" });
         }
@@ -65,7 +66,7 @@ const openShareNote = async (req: Request, res: Response) => {
 const closeShareNote = async (req: Request, res: Response) => {
     try {
         const { nid } = req.body;
-        const log = await updateShareNoteService(nid, false);
+        const log = await updateShareNoteService(nid, 1);
         if (log === 200) {
             return res.status(200).json({ message: "Cập nhật thành công" });
         }
@@ -161,6 +162,41 @@ const getNoteById = async (req: Request, res: Response) => {
 }
 
 
+const coppyNote = async (req: Request, res: Response) => {
+    try {
+        const { uid, nid } = req.body;
+        const log = await getInfoNoteService(nid);
+        if (log === 404) {
+            return res.status(200).json({ message: "Không tìm thấy note" });
+        }
+        else {
+            const newNote: any = {
+                title: log.title,
+                uid: uid,
+            };
+            const log2 = await createNoteService(newNote);
+
+            const getcontent = await getContentService(nid);
+            if (getcontent === 404) {
+                return res.status(200).json({ message: "Không tìm thấy note" });
+            } else if (getcontent === null) {
+                return res.status(200).json({ message: "Lỗi" });
+            } else {
+                const createNote = await createContentService(uid, log2.nid, getcontent.content);
+                if (createNote === 200) {
+                    return res.status(200).json({ message: "sao chép thành công" });
+                } else {
+                    return res.status(200).json({ message: "Lỗi" });
+                }
+            }
+       
+        }
+
+    }
+    catch (e) {
+        return res.status(200).json({ message: "Lỗi", error: e });
+    }
+}
 
 export default {
     createNote,
@@ -172,6 +208,6 @@ export default {
     getNoteById,
     openShareNote,
     closeShareNote,
-
-
+    coppyNote
+    
 }

@@ -22,10 +22,7 @@ export const userModel = sequelize.define<User>(
             type: DataTypes.STRING,
             allowNull: false,
         },
-        fullname: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
+       
         status: {
 
             type: DataTypes.BOOLEAN,

@@ -6,7 +6,5 @@ extends Model <InferAttributes<User>,InferCreationAttributes<User>>{
     password: string;
     email: string;
     token: string;
-    fullname: string;
     status: Boolean;
-
     }

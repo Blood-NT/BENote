@@ -6,7 +6,7 @@ export const noteModel = sequelize.define<Note>(
     "notes",
     {
         nid: {
-            type: DataTypes.NUMBER,
+            type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true
         },
@@ -23,7 +23,7 @@ export const noteModel = sequelize.define<Note>(
             allowNull: false,
         },
         share: {
-            type: DataTypes.BOOLEAN,
+            type: DataTypes.INTEGER,
             allowNull: false,
         },
         importance: {

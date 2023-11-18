@@ -5,7 +5,7 @@ import { noteModel } from "../models/note.model";
 const createNoteService = async (note: Note) => {
     note.status = true;
     note.created = new Date();
-    note.share = false;
+    note.share = 1;
     note.importance = false;
     note.color = "white";
     
@@ -23,7 +23,7 @@ const updateTitleNoteService = async (nid: string, title: string) => {
         return 404; // không tìm thấy note
     }
 }
-const updateShareNoteService = async (nid: string, share: boolean) => {
+const updateShareNoteService = async (nid: string, share: number) => {
     const check: Note | null = await noteModel.findOne({ where: { nid: nid } });
     if (check) {
         await noteModel.update({ share: share }, { where: { nid: nid } });
@@ -71,6 +71,7 @@ const setColorNote = async (nid: string, color: string) => {
 const getNoteByUidService = async (uid: string) => {
     const check: Note[] | null = await noteModel.findAll({ where: { uid: uid,status:true } });
     if (check) {
+        console.log("test",check);
         return check;
     }
     else {
@@ -96,6 +97,7 @@ export {
     updateTitleNoteService,
     updateShareNoteService,
     getNoteByUidService,
-    getInfoNoteService
+    getInfoNoteService,
+    
     
 }

@@ -1,14 +1,16 @@
 import { Request, Response } from "express";
-import { changePasswordService, forgotPasswordService, loginService, registerService, verifyAccountService } from "../service/userService";
+import { changePasswordService, changePasswordUserService, forgotPasswordService, loginByTokenService, loginService, registerService, verifyAccountService } from "../service/userService";
 import { v4 as uuidv4 } from 'uuid';
 import { createVerifyToken } from "../service/tokenService";
 import { sendVerifiForgotPassword, sendVerificationEmail } from "../External/emailSMTP";
+import { forgotPassword } from "../interfaces/forgotPassword.interface";
+import { createVerifyPasswordService, deleteVerifyPasswordService, getVerifyPasswordService } from "../service/forgotPassword.service";
 const login = async (req: Request, res: Response) => {
     try {
         const log = await loginService(req.body);
         if (log.statusCode === 200) {
             // delete log.status;
-            console.log("đăng nhập thành công",log);
+            console.log("đăng nhập thành công", log);
             return res.status(200).json(log);
         }
         else if (log.statusCode === 201) {
@@ -31,11 +33,10 @@ const login = async (req: Request, res: Response) => {
     catch (e) {
         return res.status(200).json({ message: "Lỗi", error: e });
     }
-    return res.status(200).json({ message: "Lỗi không xác định" });
 }
-   
+
 const register = async (req: Request, res: Response) => {
-    console.log("req.body", req.body);
+    console.log("req.body register", req.body);
     try {
         const log = await registerService(req.body);
         if (log === 200) {
@@ -46,7 +47,7 @@ const register = async (req: Request, res: Response) => {
             };
             await createVerifyToken(newVerify);
             await sendVerificationEmail(newVerify.email, newVerify.uniqueString);
-            return res.status(200).json({ message: "Đăng ký thành công, vui lòng kiểm tra email để xác thực tài khoản" });
+            return res.status(200).json({ message: "done", statusCode: 200 });
         }
         else if (log === 201) {
             return res.status(200).json({ message: "User đã tồn tại" });
@@ -66,7 +67,7 @@ const register = async (req: Request, res: Response) => {
 
 const verifyAccount = async (req: Request, res: Response) => {
     try {
-       console.log("join");
+        console.log("join");
         const { email, uniqueString } = req.params;
         const check = await verifyAccountService(email, uniqueString);
         if (check === 200) {
@@ -79,57 +80,101 @@ const verifyAccount = async (req: Request, res: Response) => {
     }
 
 }
-const forgotPassword = async (req: Request, res: Response) => {
+
+const createForgotPassword = async (req: Request, res: Response) => {
+    console.log("done createForgotPassword");
     try {
         const { email } = req.body;
         const check = await forgotPasswordService(email);
-        if (check === 200) {
-            const uniqueString = uuidv4();
-            const newVerify: any = {
-                email: email,
-                uniqueString: uniqueString,
-            };
-            await createVerifyToken(newVerify);
-            await sendVerifiForgotPassword(newVerify.email, newVerify.uniqueString);
-            return res.status(200).json({ message: "Kiểm tra email để thay đổi mật khẩu" });
+        if (check !== 200) {
+            return res.json({ statusCode: "400", message: "Tài khoản không tồn tại" });
         }
-        return res.status(200).json({ message: "Email không tồn tại" });
-
+        const uniqueString = uuidv4();
+        const password = "123456789"
+        await sendVerifiForgotPassword(email, uniqueString, password);
+        const newVerify: any = {
+            email: email,
+            uniqueString: uniqueString,
+            password: password,
+        };
+        await createVerifyPasswordService(newVerify);
+        res.status(200).json({ statusCode: "200", message: "Tạo thành công" });
+    } catch (error) {
+        res.status(200).json({ statusCode: "400", message: `${error}` });
     }
-    catch (e) {
-        return res.status(200).json({ message: "Lỗi", error: e });
-    }
-}
+};
 const changePassword = async (req: Request, res: Response) => {
     try {
         const { email, oldPass, newPass } = req.body;
-        const check = await changePasswordService(email, oldPass, newPass);
-        if (check === 200) {
-
+        const response = await changePasswordService(email, oldPass);
+        if (response === 200) {
             const uniqueString = uuidv4();
-            const newVerify: any = {
-                email: req.body.email,
+            await sendVerifiForgotPassword(email, uniqueString, newPass);
+            const newww: any = {
+                email: email,
                 uniqueString: uniqueString,
+                password: newPass,
             };
-            await createVerifyToken(newVerify);
-            await sendVerificationEmail(newVerify.email, newVerify.uniqueString);
-            return res.status(200).json({ message: "Đăng ký thành công, vui lòng kiểm tra email để xác thực tài khoản" });
+            await createVerifyPasswordService(newww);
+            res.status(200).json({ statusCode: "200", message: "Tạo thành công" });
         }
-
-        return res.status(200).json({ message: "Xác thực thất bại" });
-
+        if (response === 202) {
+            res.status(200).json({ statusCode: "400", message: "sai mật khẩu" });
+        }
+    } catch (error) {
+        res.status(200).json({ statusCode: "400", message: `${error}` });
     }
+};
 
-    catch (e) {
-        return res.status(200).json({ message: "Lỗi", error: e });
+const verifyChangePassword = async (req: Request, res: Response) => {
+    try {
+        const email: string = req.params.email;
+        const uniqueString: string = req.params.uniqueString;
+        const foundVerify: forgotPassword | null = (
+            await getVerifyPasswordService(email, uniqueString)
+        ).data;
+        if (!foundVerify) {
+            const message = "Tài khoản không tồn tại hoặc đã được xác minh";
+            return res.status(200).json(message);
+            return;
+        }
+        if (
+            foundVerify.createAt.getTime() + foundVerify.effectiveSeconds * 1000 <
+            new Date().getTime()
+        ) {
+            const message = "Liên kết đã hết hạn, vui lòng thao tác lại";
+            
+            return res.status(200).json(message);
+        }
+        await deleteVerifyPasswordService(email);
+        await changePasswordUserService(email, foundVerify.password);
+        res.redirect(`/user/verified`);
+    } catch (error) {
+        console.log(error);
+        const message = "Đã xảy ra lỗi khi kiểm tra xác minh người dùng hiện tại";
+        return res.status(200).json(message);
+    }
+};
 
+const loginByToken = async (req: Request, res: Response) => {
+    console.log("loginByToken", req.body);
+    const { refreshToken } = req.body;
+    try {
+        const userr = await loginByTokenService(refreshToken);
+        if (userr) {
+            return res.status(200).json(userr);
+        }
+        return res.status(200).json({ message: "Đăng nhập thất bại" });
+    } catch (error) {
+        return res.status(200).json({ message: "Lỗi", error });
     }
 }
-
 export default {
     login,
+    loginByToken,
     register,
     verifyAccount,
-    forgotPassword,
+    createForgotPassword,
     changePassword,
+    verifyChangePassword
 }
