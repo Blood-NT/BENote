@@ -5,6 +5,8 @@ import { createVerifyToken } from "../service/tokenService";
 import { sendVerifiForgotPassword, sendVerificationEmail } from "../External/emailSMTP";
 import { forgotPassword } from "../interfaces/forgotPassword.interface";
 import { createVerifyPasswordService, deleteVerifyPasswordService, getVerifyPasswordService } from "../service/forgotPassword.service";
+import { User } from "../interfaces/user.interface";
+import { decryptt, encrypt } from "../enDeCode/enDeCode";
 const login = async (req: Request, res: Response) => {
     try {
         const log = await loginService(req.body);
@@ -105,22 +107,26 @@ const createForgotPassword = async (req: Request, res: Response) => {
 };
 const changePassword = async (req: Request, res: Response) => {
     try {
-        const { email, oldPass, newPass } = req.body;
-        const response = await changePasswordService(email, oldPass);
-        if (response === 200) {
+        const { uid, oldPass, newPass } = req.body;
+        const getuser:any = await changePasswordService(uid, oldPass);
+        if (getuser === 202) {
+            res.status(200).json({ statusCode: "400", message: "sai mật khẩu" });
+        }
+        else if (getuser === 201) {
+            res.status(200).json({ statusCode: "400", message: "user không tồn tại" });
+        }
+        else {
             const uniqueString = uuidv4();
-            await sendVerifiForgotPassword(email, uniqueString, newPass);
+            await sendVerifiForgotPassword(getuser.email, uniqueString, newPass);
             const newww: any = {
-                email: email,
+                email: getuser.email,
                 uniqueString: uniqueString,
                 password: newPass,
             };
             await createVerifyPasswordService(newww);
             res.status(200).json({ statusCode: "200", message: "Tạo thành công" });
         }
-        if (response === 202) {
-            res.status(200).json({ statusCode: "400", message: "sai mật khẩu" });
-        }
+      
     } catch (error) {
         res.status(200).json({ statusCode: "400", message: `${error}` });
     }
@@ -157,6 +163,9 @@ const verifyChangePassword = async (req: Request, res: Response) => {
 };
 
 const loginByToken = async (req: Request, res: Response) => {
+    const codeee= encrypt("123456789")
+    console.log("check code",codeee);
+    console.log("CHECK ENCODE", decryptt(codeee));
     console.log("loginByToken", req.body);
     const { refreshToken } = req.body;
     try {

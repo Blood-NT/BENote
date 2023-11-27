@@ -27,7 +27,7 @@ const createContent = async (req: Request, res: Response) => {
             return res.status(200).json({ message: "Tạo thành công" });
         }
         else if (log === 404) {
-            return res.status(200).json({ message: "Không tìm thấy note" });
+            return res.status(200).json({ message: "Không tìm thấy note//" });
         }
     }
     catch (e) {

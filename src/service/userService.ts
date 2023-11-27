@@ -48,13 +48,15 @@ const loginByTokenService = async (token: string): Promise<any> => {
         const decoded: any = jwt.verify(token, key);
         const foundUser: User | null = await getUserById(decoded?.id);
         if (foundUser?.token !== token) {
-            return { statusCode: "401", message: " token không đúng" };
+            console.log("token1", token);
+            console.log("token2", foundUser?.token);
+            return { statusCode: "401", message: " token không đúng ^^" };
         }
         const accessToken = getToken(foundUser.uid, "accessToken");
         return {
             statusCode: "200",
             message: "Đăng nhập thành công ",
-            data: { ...foundUser.dataValues, accessToken },
+            data: { ...foundUser.dataValues, accessToken , statusCode: "200"},
         };
     } catch (error) {
         return { statusCode: "402", message: "token đã hết hạn", error: error };
@@ -95,8 +97,8 @@ const registerService = async (tmpUser: any) => {
     return 200;
 }
 
-const changePasswordService = async (email: string, oldPass: string) => {
-    const user: User | null = await userModel.findOne({ where: { email: email } });
+const changePasswordService = async (uid: string, oldPass: string) => {
+    const user: User | null = await userModel.findOne({ where: { uid: uid } });
     if (!user) {
         return 201; // user không tồn tại
     }
@@ -104,7 +106,7 @@ const changePasswordService = async (email: string, oldPass: string) => {
     if (!checkPass) {
         return 202; // sai mật khẩu
     }
-    return 200;
+    return user;
 }
 
   
