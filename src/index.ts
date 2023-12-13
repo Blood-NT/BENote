@@ -19,7 +19,7 @@ const io = new Server(httpServer, {
 });
 
 
-
+// chuwa fix xong
 io.on('connection', (socket: Socket) => {
 
     socket.on('updateNote', (data) => {
