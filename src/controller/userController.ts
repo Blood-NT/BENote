@@ -17,23 +17,23 @@ const login = async (req: Request, res: Response) => {
         }
         else if (log.statusCode === 201) {
             console.log("user không tồn tại");
-            return res.status(200).json({ message: "User không tồn tại" });
+            return res.status(200).json({ message: "User không tồn tại", statusCode: 201 });
         }
         else if (log.statusCode === 202) {
             console.log("mật khẩu không đúng");
-            return res.status(200).json({ message: "Mật khẩu không đúng" });
+            return res.status(200).json({ message: "Mật khẩu không đúng" , statusCode: 202});
         }
         else if (log.statusCode === 203) {
             console.log("tài khoản chưa được xác thực");
-            return res.status(200).json({ message: "Tài khoản chưa được xác thực" });
+            return res.status(200).json({ message: "Tài khoản chưa được xác thực", statusCode: 203 });
         }
         else {
             console.log("lỗi không xác định");
-            return res.status(200).json({ message: "Lỗi không xác định" });
+            return res.status(200).json({ message: "Lỗi không xác định", statusCode: 204 });
         }
     }
     catch (e) {
-        return res.status(200).json({ message: "Lỗi", error: e });
+        return res.status(200).json({ message: "Lỗi", error: e , statusCode: 205});
     }
 }
 
@@ -49,20 +49,20 @@ const register = async (req: Request, res: Response) => {
             };
             await createVerifyToken(newVerify);
             await sendVerificationEmail(newVerify.email, newVerify.uniqueString);
-            return res.status(200).json({ message: "done", statusCode: 200 });
+            return res.status(200).json({ message: "đăng ký thành công", statusCode: 210 });
         }
         else if (log === 201) {
-            return res.status(200).json({ message: "User đã tồn tại" });
+            return res.status(200).json({ message: "User đã tồn tại", statusCode: 211});
         }
         else if (log === 202) {
-            return res.status(200).json({ message: "User đã tồn tại nhưng chưa xác nhận" });
+            return res.status(200).json({ message: "User đã tồn tại nhưng chưa xác nhận", statusCode: 212 });
         }
         else {
-            return res.status(200).json({ message: "Lỗi không xác định" });
+            return res.status(200).json({ message: "Lỗi không xác định" , statusCode: 213});
         }
     }
     catch (e) {
-        return res.status(200).json({ message: "Lỗi", error: e });
+        return res.status(200).json({ message: "Lỗi", error: e, statusCode: 214 });
     }
 
 }
@@ -89,7 +89,7 @@ const createForgotPassword = async (req: Request, res: Response) => {
         const { email } = req.body;
         const check = await forgotPasswordService(email);
         if (check !== 200) {
-            return res.json({ statusCode: "400", message: "Tài khoản không tồn tại" });
+            return res.json({ statusCode: 221, message: "Tài khoản không tồn tại" });
         }
         const uniqueString = uuidv4();
         const password = "123456789"
@@ -100,9 +100,9 @@ const createForgotPassword = async (req: Request, res: Response) => {
             password: password,
         };
         await createVerifyPasswordService(newVerify);
-        res.status(200).json({ statusCode: "200", message: "Tạo thành công" });
+        res.status(200).json({ statusCode: 220, message: "Tạo thành công" });
     } catch (error) {
-        res.status(200).json({ statusCode: "400", message: `${error}` });
+        res.status(200).json({ statusCode: 400, message: `${error}` });
     }
 };
 const changePassword = async (req: Request, res: Response) => {

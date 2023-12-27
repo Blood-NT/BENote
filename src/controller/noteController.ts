@@ -15,20 +15,18 @@ const createNote = async (req: Request, res: Response) => {
             uid: uid,
         };
         const log = await createNoteService(newNote);
-
         const createNote = await createContentService(uid, log.nid, "<p>Nhập nội dung</p>");
-
         if (createNote === 200) {
-            return res.status(200).json({ message: "Tạo note thành công" });
+            return res.status(200).json({ message: "Tạo note thành công", statusCode: 230});
         }
         else {
-            return res.status(200).json({ message: "Lỗi" });
+            return res.status(200).json({ message: "Lỗi" , statusCode: 231});
 
         }
     }
     catch (e) {
         console.log(e);
-        return res.status(200).json({ message: "Lỗiii", error: e });
+        return res.status(200).json({ message: "Lỗiii", error: e, statusCode: 232 });
     }
 }
 
@@ -69,7 +67,7 @@ const updateColorNote = async (req: Request, res: Response) => {
         const { nid, color } = req.body;
         const log = await setColorNote(nid, color);
         if (log === 200) {
-            return res.status(200).json({ message: "Cập nhật thành công" });
+            return res.status(200).json({ message: "Cập nhật thành công" , statusCode: 232});
         }
         else if (log === 404) {
             return res.status(200).json({ message: "Không tìm thấy note" });
@@ -85,10 +83,10 @@ const updateImportanceNote = async (req: Request, res: Response) => {
         const { uid, nid } = req.body;
         const log = await setImportanceNote( nid,uid);
         if (log === 200) {
-            return res.status(200).json({ message: "Cập nhật thành công" });
+            return res.status(200).json({ message: "Cập nhật thành công", statusCode: 238 }); 
         }
         else if (log === 404) {
-            return res.status(200).json({ message: "Không tìm thấy note" });
+            return res.status(200).json({ message: "Không tìm thấy note", statusCode: 239 });
         }
     }
     catch (e) {
@@ -101,10 +99,10 @@ const deleteNote = async (req: Request, res: Response) => {
         const { nid } = req.body;
         const log = await deleteNoteService(nid);
         if (log === 200) {
-            return res.status(200).json({ message: "Xóa thành công" });
+            return res.status(200).json({ message: "Xóa thành công", statusCode: 233 });
         }
         else if (log === 404) {
-            return res.status(200).json({ message: "Không tìm thấy note" });
+            return res.status(200).json({ message: "Không tìm thấy note", statusCode: 234 });
         }
 
     }
@@ -166,7 +164,7 @@ const copyNote = async (req: Request, res: Response) => {
             } else {
                 const createNote = await createContentService(uid, log2.nid, getcontent.content);
                 if (createNote === 200) {
-                    return res.status(200).json({ message: "sao chép thành công" });
+                    return res.status(200).json({ message: "sao chép thành công", statusCode: 235 });
                 } else {
                     return res.status(200).json({ message: "Lỗi" });
                 }
@@ -206,7 +204,7 @@ const saveNote = async (req: Request, res: Response) => {
             console.log("data",hid, gid, nid);
             if (log === 200) {
                 console.warn("3");
-                return res.status(200).json({ message: "Lưu thành công" });
+                return res.status(200).json({ message: "Lưu thành công" , statusCode: 236});
             }
             else if (log === 404) {
                 console.log("4");
