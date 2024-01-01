@@ -92,7 +92,7 @@ const createForgotPassword = async (req: Request, res: Response) => {
             return res.json({ statusCode: 221, message: "Tài khoản không tồn tại" });
         }
         const uniqueString = uuidv4();
-        const password = "123456789"
+        const password = "1234"
         await sendVerifiForgotPassword(email, uniqueString, password);
         const newVerify: any = {
             email: email,
@@ -100,7 +100,7 @@ const createForgotPassword = async (req: Request, res: Response) => {
             password: password,
         };
         await createVerifyPasswordService(newVerify);
-        res.status(200).json({ statusCode: 220, message: "Tạo thành công" });
+        res.status(200).json({ statusCode: 220, message: "Mật khẩu mới đã được gửi về email của bạn" });
     } catch (error) {
         res.status(200).json({ statusCode: 400, message: `${error}` });
     }
@@ -124,7 +124,7 @@ const changePassword = async (req: Request, res: Response) => {
                 password: newPass,
             };
             await createVerifyPasswordService(newww);
-            res.status(200).json({ statusCode: "200", message: "Tạo thành công" });
+            res.status(200).json({ statusCode: "200", message: "Hãy kiểm tra email để xác nhận thay đổi mật khẩu" });
         }
       
     } catch (error) {
@@ -154,7 +154,8 @@ const verifyChangePassword = async (req: Request, res: Response) => {
         }
         await deleteVerifyPasswordService(email);
         await changePasswordUserService(email, foundVerify.password);
-        res.redirect(`/user/verified`);
+        // res.redirect(`/user/verified`);
+        return res.status(200).json({ message: "Xác thwucj quên mật khẩu thành công" });
     } catch (error) {
         console.log(error);
         const message = "Đã xảy ra lỗi khi kiểm tra xác minh người dùng hiện tại";

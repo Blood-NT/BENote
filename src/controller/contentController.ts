@@ -24,7 +24,7 @@ const createContent = async (req: Request, res: Response) => {
         const { nid, uid, content } = req.body;
         const log = await createContentService(uid,nid, content);
         if (log === 200) {
-            return res.status(200).json({ message: "Tạo thành công" });
+            return res.status(200).json({ message: "Tạo thành công", statusCode: 200 });
         }
         else if (log === 404) {
             return res.status(200).json({ message: "Không tìm thấy note//" });

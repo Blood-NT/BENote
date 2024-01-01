@@ -6,6 +6,19 @@ const createContentService = async(uid:string,nid:number, data:string)=>{
     console.log("create content");
    
     try{
+        const content:Contents|null = await contentModel.findOne({
+            where:{
+                nid:nid
+            },
+            order:[
+                ['updateat','DESC']
+            ]
+        });
+        
+
+        if(content!=null && content.content===data){
+                return 200;
+        }
         const contents = await contentModel.create({
             uid:uid,
             nid:nid,
